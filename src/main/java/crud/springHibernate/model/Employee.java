@@ -9,6 +9,7 @@ import javax.persistence.*;
 @DynamicUpdate
 public class Employee {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
     @ManyToOne
@@ -16,12 +17,6 @@ public class Employee {
     private Department department;
 
     public Employee() {
-    }
-
-    public Employee(Long id, String name, Department department) {
-        this.id = id;
-        this.name = name;
-        this.department = department;
     }
 
     public Employee(String name, Department department) {

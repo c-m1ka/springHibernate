@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>title crud spring hibernate freemarker</title>
+        <title>title crud spring hibernate freemarker index</title>
     </head>
     <body>
     <h2>Employee table</h2>
@@ -12,28 +12,33 @@
            <th>name</th>
            <th>department</th>
            <th>delete</th>
+           <th>edit</th>
            </tr>
             <#list employees as employee>
                       <tr>
                       <td> ${employee.id}</td>
                       <td> ${employee.name}</td>
                       <td> ${employee.department.name}</td>
-                      <td>
-                          <a href="/employee/${employee.id}/delete">X</a>
-                      </dt>
+                      <td><a href="/employee/${employee.id}/delete">X</a></td>
+                      <td><a href= "/employee/${employee.id}/edit">edit</a></td>
                       </tr>
                     <#else>
-                       <tr>Part executed when there are 0 record<td>
+                       Part executed when there are 0 record
                    </#list>
          </table>
-         <form action="/addUpdateEmployee" method="post">
-           <p><input type="text" name="id" placeholder="enter id">
-           <input type="text" name="name" placeholder="enter name">
-           <input type="text" name="department" placeholder="enter department">
-           <p><input type="submit" value="Add/update employee"></p>
+         <form action="/addEmployee" method="post">
+           <input type="text" name="name" placeholder="enter name employee">
+           <select name="department">
+            <#list departments as department>
+             <option>${department.id}</option>
+             <#else>
+             <option>0</option>
+             </#list>
+           </select>
+           <p><input type="submit" value="Add employee"></p>
           </form>
 
-         <br></br>
+         <br>
         <h2>Department table</h2>
 
        <table border="1">
@@ -41,21 +46,25 @@
                  <th>id</th>
                  <th>name</th>
                  <th>delete</th>
-                 </tr>
+                 <th>edit</th>
+            </tr>
                <#list departments as department>
                   <tr>
                   <td> ${department.id}</td>
                   <td> ${department.name}</td>
-                  <td> <a href="/department/${department.id}/delete">X</a></dt>
+                  <td> <a href="/department/${department.id}/delete">X</a></td>
+                  <td><a href="/department/${department.id}/edit">edit</a></td>
                   </tr>
                     <#else>
-                     <tr>Part executed when there are 0 record<td>
+                     Part executed when there are 0 record
                 </#list>
                 </table>
-           <form action="/addUpdateDepartment" method="post">
-                      <p><input type="text" name="id" placeholder="enter id">
-                      <input type="text" name="name" placeholder="enter name of departments">
-                      <p><input type="submit" value="Add/update department"></p>
-                     </form>
+           <form action="/addDepartment" method="post">
+             <input type="text" name="name" placeholder="enter name of departments">
+             <p><input type="submit" value="Add department"></p>
+           </form>
+        <br>
+        <a href="/statistics">Check statistics</a>
+
     </body>
 </html>
