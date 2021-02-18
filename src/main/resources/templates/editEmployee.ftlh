@@ -23,9 +23,7 @@
                 <select name="department">
                     <option disabled>${employeeDepartmentId}</option>
                     <#list departments as department>
-                    <option>${department.id}</option>
-                    <#else>
-                    <option>departments is empty</option>
+                    <option value="${department.id}">${department.name}</option>
                 </#list>
                 </select>
             </td>

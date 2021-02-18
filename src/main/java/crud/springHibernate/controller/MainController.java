@@ -31,7 +31,7 @@ public class MainController {
         return "index";
     }
 
-    @GetMapping(value = "statistics")
+    @GetMapping(value = "/statistics")
     public String statistics(Model model) {
         model.addAttribute("employees", employees.size());
         model.addAttribute("departments", departments.size());
@@ -52,7 +52,7 @@ public class MainController {
             if (department.get().getEmployees().isEmpty()) {
                 crudService.deleteDepartment(department.get());
             } else {
-                throw new CrudException("Employees this deprtment non empty, first remove all employees of the department");
+                throw new CrudException("Employees this department non empty, first remove all employees of the department");
             }
         }
         return "redirect:/index";
@@ -78,8 +78,12 @@ public class MainController {
     @PostMapping(value = "/addDepartment")
     public String addDepartment(@RequestParam("name") String name) {
         if(!name.isEmpty()){
-            Department department = new Department(name);
-            crudService.addOrUpdateDepartment(department);
+            if (departments.stream().noneMatch(x -> (Objects.equals(x.getName(), name)))){
+                Department department = new Department(name);
+                crudService.addOrUpdateDepartment(department);
+            } else {
+              throw new CrudException("This department name exist, please add new name department");
+            }
         } else {
             throw new CrudException("Fail to add empty name department, please add name non empty");
         }

@@ -30,9 +30,9 @@
            <input type="text" name="name" placeholder="enter name employee">
            <select name="department">
             <#list departments as department>
-             <option>${department.id}</option>
+             <option value="${department.id}">${department.name}</option>
              <#else>
-             <option>0</option>
+             <option value="0">department is empty</option>
              </#list>
            </select>
            <p><input type="submit" value="Add employee"></p>
