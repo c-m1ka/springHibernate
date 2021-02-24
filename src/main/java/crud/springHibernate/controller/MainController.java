@@ -19,13 +19,10 @@ public class MainController {
     @Autowired
     private CrudService crudService;
 
-    private List<Department> departments;
-    private List<Employee> employees;
-
     @GetMapping(value = {"/", "/index"})
     public String index(Model model) {
-        employees = crudService.getEmployees();
-        departments = crudService.getDepartments();
+        List<Employee> employees = crudService.getEmployees();
+        List<Department> departments = crudService.getDepartments();
         model.addAttribute("employees", employees);
         model.addAttribute("departments", departments);
         return "index";
@@ -33,6 +30,8 @@ public class MainController {
 
     @GetMapping(value = "/statistics")
     public String statistics(Model model) {
+        List<Employee> employees = crudService.getEmployees();
+        List<Department> departments = crudService.getDepartments();
         model.addAttribute("employees", employees.size());
         model.addAttribute("departments", departments.size());
         return "statistics";
@@ -60,9 +59,10 @@ public class MainController {
 
     @PostMapping(value = "/addEmployee")
     public String addEmployee(@RequestParam("name") String name, @RequestParam("department") Long department, Model model){
+        List<Department> departments = crudService.getDepartments();
         model.addAttribute("departments", departments);
-        if (departments.isEmpty()) {
-            throw new CrudException("To save an employee, you need a department, add a department first");
+        if (department.equals(0L)) {
+            throw new CrudException("Fail to add employee departments is empty, please add first department");
         } else {
             departments.stream().filter(x -> Objects.equals(x.getId(), department)).forEach(x-> {
                 if (name.isEmpty()) {
@@ -77,6 +77,7 @@ public class MainController {
 
     @PostMapping(value = "/addDepartment")
     public String addDepartment(@RequestParam("name") String name) {
+        List<Department> departments = crudService.getDepartments();
         if(!name.isEmpty()){
             if (departments.stream().noneMatch(x -> (Objects.equals(x.getName(), name)))){
                 Department department = new Department(name);
@@ -93,12 +94,14 @@ public class MainController {
 
     @GetMapping(value = "/employee/{employeeId}/edit")
     public String getToEditEmployee(@PathVariable Long employeeId, Model model){
+        List<Employee> employees = crudService.getEmployees();
+        List<Department> departments = crudService.getDepartments();
         Optional<Employee> maybeEmployee = employees.stream().filter(employee -> Objects.equals(employee.getId(), employeeId)).findFirst();
         if (maybeEmployee.isPresent()){
             Employee employee = maybeEmployee.get();
             model.addAttribute("employeeId", employeeId);
             model.addAttribute("employeeName", employee.getName());
-            model.addAttribute("employeeDepartmentId", employee.getDepartment().getId());
+            model.addAttribute("departmentName", employee.getDepartment().getName());
             model.addAttribute("departments", departments);
             return "editEmployee";
         } else {
@@ -108,13 +111,14 @@ public class MainController {
 
     @PostMapping(value = "/editEmployee")
     public String editEmployee(@RequestParam("name") String name, @RequestParam("department") Long departmentId, @RequestParam("employeeId") Long employeeId){
+        List<Employee> employees = crudService.getEmployees();
+        List<Department> departments = crudService.getDepartments();
         employees.stream().filter(employee -> Objects.equals(employee.getId(), employeeId)).forEach(employee -> {
             departments.stream().filter(department -> Objects.equals(department.getId(), departmentId)).forEach(department -> {
-                System.out.println(department);
-                if (!name.isEmpty()){
-                    employee.setName(name);
+                if (name.isEmpty()){
+                    throw new CrudException("Name employee is empty, please add non empty name");
                 } else {
-                    employee.setName(employee.getName());
+                    employee.setName(name);
                 }
                 employee.setDepartment(department);
                 crudService.addOrUpdateEmployee(employee);
@@ -125,6 +129,7 @@ public class MainController {
 
     @GetMapping(value ="/department/{departmentId}/edit")
     public String getToEditDepartment(@PathVariable Long departmentId, Model model){
+        List<Department> departments = crudService.getDepartments();
         Optional<Department> maybeDepartment = departments.stream().filter(department -> department.getId().equals(departmentId)).findFirst();
         if (maybeDepartment.isPresent()){
             Department department = maybeDepartment.get();
@@ -138,6 +143,7 @@ public class MainController {
 
     @PostMapping(value = "/editDepartment")
     public String editDepartment(@RequestParam("name") String name, @RequestParam("departmentId") Long departmentId){
+        List<Department> departments = crudService.getDepartments();
         Optional<Department> maybeDepartment = departments.stream().filter(department -> Objects.equals(department.getId(), departmentId)).findFirst();
         if (maybeDepartment.isPresent()){
             Department department = maybeDepartment.get();

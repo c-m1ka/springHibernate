@@ -17,11 +17,11 @@
         <tr>
             <td><input type="text" name="employeeId" value="${employeeId}" readonly></td>
             <td>
-                <input type="text" name="name" placeholder="${employeeName}">
+                <input type="text" name="name" value="${employeeName}">
             </td>
             <td>
                 <select name="department">
-                    <option disabled>${employeeDepartmentId}</option>
+                    <option disabled>${departmentName}</option>
                     <#list departments as department>
                     <option value="${department.id}">${department.name}</option>
                 </#list>
