@@ -4,6 +4,7 @@ import crud.springHibernate.exceptions.CrudException;
 import crud.springHibernate.model.Department;
 import crud.springHibernate.model.Employee;
 import crud.springHibernate.service.CrudService;
+import crud.springHibernate.service.ValidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +19,9 @@ import java.util.Optional;
 public class MainController {
     @Autowired
     private CrudService crudService;
+
+    @Autowired
+    private ValidateService validateService;
 
     @GetMapping(value = {"/", "/index"})
     public String index(Model model) {
@@ -65,11 +69,9 @@ public class MainController {
             throw new CrudException("Fail to add employee departments is empty, please add first department");
         } else {
             departments.stream().filter(x -> Objects.equals(x.getId(), department)).forEach(x-> {
-                if (name.isEmpty()) {
-                    throw new CrudException("Fail to add empty name employee");
-                } else {
-                    crudService.addOrUpdateEmployee(new Employee(name, x));
-                }
+                Employee employee = new Employee(name, x);
+                validateService.validateEmployee(employee);
+                crudService.addOrUpdateEmployee(employee);
             });
         }
         return "redirect:/index";
@@ -78,17 +80,13 @@ public class MainController {
     @PostMapping(value = "/addDepartment")
     public String addDepartment(@RequestParam("name") String name) {
         List<Department> departments = crudService.getDepartments();
-        if(!name.isEmpty()){
+        Department department = new Department(name);
+        validateService.validateDepartments(department);
             if (departments.stream().noneMatch(x -> (Objects.equals(x.getName(), name)))){
-                Department department = new Department(name);
                 crudService.addOrUpdateDepartment(department);
             } else {
               throw new CrudException("This department name exist, please add new name department");
             }
-        } else {
-            throw new CrudException("Fail to add empty name department, please add name non empty");
-        }
-
         return "redirect:/index";
     }
 
@@ -113,16 +111,16 @@ public class MainController {
     public String editEmployee(@RequestParam("name") String name, @RequestParam("department") Long departmentId, @RequestParam("employeeId") Long employeeId){
         List<Employee> employees = crudService.getEmployees();
         List<Department> departments = crudService.getDepartments();
-        employees.stream().filter(employee -> Objects.equals(employee.getId(), employeeId)).forEach(employee -> {
-            departments.stream().filter(department -> Objects.equals(department.getId(), departmentId)).forEach(department -> {
-                if (name.isEmpty()){
-                    throw new CrudException("Name employee is empty, please add non empty name");
-                } else {
+        employees.stream().filter(employee -> Objects.equals(employee.getId(), employeeId)).forEach(employee ->
+        {
+            for (Department department : departments) {
+                if (Objects.equals(department.getId(), departmentId)) {
+                    validateService.validateName(name);
                     employee.setName(name);
+                    employee.setDepartment(department);
+                    crudService.addOrUpdateEmployee(employee);
                 }
-                employee.setDepartment(department);
-                crudService.addOrUpdateEmployee(employee);
-            });
+            }
         });
         return "redirect:/index";
     }
@@ -147,12 +145,10 @@ public class MainController {
         Optional<Department> maybeDepartment = departments.stream().filter(department -> Objects.equals(department.getId(), departmentId)).findFirst();
         if (maybeDepartment.isPresent()){
             Department department = maybeDepartment.get();
-            if(!name.isEmpty()){
+                validateService.validateName(name);
                 department.setName(name);
                 crudService.addOrUpdateDepartment(department);
-            } else {
-                throw new CrudException("Name department is empty, please add non empty record");
-            }
+
         }
         return "redirect:/index";
     }
