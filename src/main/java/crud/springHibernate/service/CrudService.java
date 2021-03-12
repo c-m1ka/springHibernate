@@ -1,5 +1,6 @@
 package crud.springHibernate.service;
 
+import crud.springHibernate.exceptions.CrudException;
 import crud.springHibernate.model.Department;
 import crud.springHibernate.model.Employee;
 import crud.springHibernate.repository.DepartmentRepository;
@@ -7,6 +8,7 @@ import crud.springHibernate.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.ValidationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,14 +27,22 @@ public class CrudService {
         return departmentRepository.findById(id);
     }
 
-    public void addOrUpdateDepartment(Department department){
-        departmentRepository.save(department);
+    public void updateDepartment(Department department){
+            departmentRepository.save(department);
+    }
+
+    public void addDepartment(Department department, String name){
+        Department department1 = departmentRepository.findByName(name);
+        if (department1 == null) {
+            departmentRepository.save(department);
+        } else {
+            throw new CrudException("This name department exists, please add new name");
+        }
     }
 
     public void deleteDepartment(Department department){
         departmentRepository.delete(department);
     }
-
 
     public List<Employee> getEmployees(){
         return (List<Employee>) employeeRepository.findAll();

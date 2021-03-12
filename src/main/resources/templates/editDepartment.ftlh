@@ -16,7 +16,7 @@
         <tr>
             <td><input type="text" name="departmentId" value="${departmentId}" readonly></td>
             <td>
-                <input type="text" name="name" placeholder="${departmentName}">
+                <input type="text" name="name" value="${departmentName}">
             </td>
             <td>
                 <input type="submit" value="save">
