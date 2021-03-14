@@ -3,6 +3,7 @@ package crud.springHibernate.model;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "Employee")
@@ -11,6 +12,7 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotEmpty
     private String name;
     @ManyToOne
     @JoinColumn(name = "department_id")

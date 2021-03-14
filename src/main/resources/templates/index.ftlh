@@ -20,7 +20,7 @@
                       <td> ${employee.name}</td>
                       <td> ${employee.department.name}</td>
                       <td><a href="/employee/${employee.id}/delete">X</a></td>
-                      <td><a href= "/employee/${employee.id}/edit">edit</a></td>
+                      <td><a href="/employee/${employee.id}/edit">edit</a></td>
                       </tr>
                     <#else>
                        Part executed when there are 0 record

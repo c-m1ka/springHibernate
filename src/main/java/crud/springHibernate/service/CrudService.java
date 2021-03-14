@@ -23,6 +23,10 @@ public class CrudService {
         return (List<Department>) departmentRepository.findAll();
     }
 
+    public int getCountDepartments(){
+        return departmentRepository.getCount();
+    }
+
     public Optional<Department> getDepart(Long id){
         return departmentRepository.findById(id);
     }
@@ -50,6 +54,10 @@ public class CrudService {
 
     public Optional<Employee> getEmpl(Long id){
         return employeeRepository.findById(id);
+    }
+
+    public int getCountEmployee(){
+        return employeeRepository.getCount();
     }
 
     public void addOrUpdateEmployee(Employee employee){
