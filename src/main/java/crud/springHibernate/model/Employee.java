@@ -12,7 +12,7 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotEmpty
+    @NotEmpty(message = "Name is employee empty, add non empty name")
     private String name;
     @ManyToOne
     @JoinColumn(name = "department_id")

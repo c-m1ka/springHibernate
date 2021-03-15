@@ -11,7 +11,7 @@ public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotEmpty
+    @NotEmpty(message = "Name is department empty, add non empty name")
     private String name;
     @OneToMany(
             mappedBy = "department",
