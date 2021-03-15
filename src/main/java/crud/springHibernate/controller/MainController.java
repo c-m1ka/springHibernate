@@ -6,6 +6,7 @@ import crud.springHibernate.model.Employee;
 import crud.springHibernate.service.CrudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -102,7 +103,7 @@ public class MainController {
     }
 
     @PostMapping(value = "/editEmployee")
-    public String editEmployee(@RequestParam("name") @NotEmpty(message = "Name is employee empty, add non empty name") String name,
+    public String editEmployee(@RequestParam("name") String name,
                                @RequestParam("department") Long departmentId,
                                @RequestParam("employeeId") Long employeeId) {
         Optional<Employee> maybeEmployee = crudService.getEmpl(employeeId);
@@ -130,7 +131,7 @@ public class MainController {
     }
 
     @PostMapping(value = "/editDepartment")
-    public String editDepartment(@RequestParam("name") @NotEmpty(message = "Name is department empty, add non empty name") String name,
+    public String editDepartment(@RequestParam("name") String name,
                                  @RequestParam("departmentId") Long departmentId) {
         Optional<Department> maybeDepartment = crudService.getDepart(departmentId);
         if (maybeDepartment.isPresent()) {
@@ -147,7 +148,8 @@ public class MainController {
         modelAndView.addObject("error", ex.getErrMessage());
         return modelAndView;
     }
-
+    // При добавлении нового сотрудника или департамента валидация проходит верно, но при обновлении сотрудника или департаметна валится с ошибкой TransactionSystemException работает для методов
+    // addEmployee, addDepartment
     @ExceptionHandler(ConstraintViolationException.class)
     public ModelAndView handleValidateException(ConstraintViolationException ex){
         ModelAndView modelAndView = new ModelAndView("errorPage");
@@ -157,6 +159,23 @@ public class MainController {
             message.append(constraintViolation.getMessage());
         }
         modelAndView.addObject("error", message);
+        return modelAndView;
+    }
+    // По всей видимости ConstraintViolationException оборачивается в TransactionSystemException, по этой причине добавил метод обработчик для этого исключения, каст в ConstraintViolationException
+    // пример взял с этого ресурса https://coderoad.ru/51446480/Spring-boot-2-0-2-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D1%83%D1%8F-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5-Spring-%D0%BA%D0%B0%D0%BA-%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B5-%D0%BE%D1%82-%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B8
+    // обрабочтичк для editEmployee, editDepartment
+    @ExceptionHandler(value = { TransactionSystemException.class })
+    public ModelAndView handleValidateExceptionFromTransaction(TransactionSystemException ex) {
+        ModelAndView modelAndView = new ModelAndView("errorPage");
+        Throwable cause = ex.getRootCause();
+        if (cause instanceof ConstraintViolationException) {
+            Set<ConstraintViolation<?>> constraintViolations = ((ConstraintViolationException) cause).getConstraintViolations();
+            StringBuilder message = new StringBuilder();
+            for (ConstraintViolation constraintViolation: constraintViolations){
+                message.append(constraintViolation.getMessage());
+            }
+            modelAndView.addObject("error", message);
+        }
         return modelAndView;
     }
 
